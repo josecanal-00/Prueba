@@ -1,0 +1,120 @@
+# Sistema de Gestión de Inventarios
+
+# Variables
+# Definimos una lista para almacenar los productos y sus precios
+productos = ["PS5", "XBOX ONE", "Nintendo Switch", "Nintendo 64"]
+precios = [100, 80, 85, 150]
+
+# Diccionario para almacenar el inventario
+inventario = {
+    "PS5": 20,
+    "XBOX ONE": 30,
+    "Nintendo Switch": 15,
+    "Nintendo 64": 10
+}
+
+# Función para manejar entradas numéricas con validación
+def solicitar_entero(mensaje):
+    while True:
+        try:
+            return int(input(mensaje))
+        except ValueError:
+            print("Por favor, ingresa un número válido.")
+
+# Función para mostrar el inventario actual
+def mostrar_inventario():
+    print("\nInventario actual:")
+    for producto, cantidad in inventario.items():
+        print(f"{producto}: {cantidad} unidades")
+
+# Función para agregar productos al inventario
+def agregar_producto(nombre, cantidad, precio):
+    if nombre in inventario:
+        inventario[nombre] += cantidad
+    else:
+        inventario[nombre] = cantidad
+        productos.append(nombre)
+        precios.append(precio)
+    print(f"\nSe han agregado {cantidad} unidades de {nombre} al inventario.")
+
+# Función para vender un producto
+def vender_producto(nombre, cantidad):
+    if nombre in inventario and inventario[nombre] >= cantidad:
+        inventario[nombre] -= cantidad
+        print(f"\nSe han vendido {cantidad} unidades de {nombre}.")
+    else:
+        print(f"\nNo hay suficiente inventario de {nombre} o el producto no existe.")
+
+# Clase para representar un cliente
+class Cliente:
+    def __init__(self, nombre, productos_comprados=None):
+        self.nombre = nombre
+        self.productos_comprados = productos_comprados if productos_comprados else {}
+        self.total_gastado = 0  # Inicializamos el total gastado en 0
+
+    def agregar_compra(self, producto, cantidad):
+        if producto in inventario:  # Solo se procesan productos que están en el inventario
+            if producto in self.productos_comprados:
+                self.productos_comprados[producto] += cantidad
+            else:
+                self.productos_comprados[producto] = cantidad
+
+            # Calcular y acumular el gasto basado en el precio
+            index_producto = productos.index(producto)  # Ubicar el índice del producto en la lista
+            precio_producto = precios[index_producto]  # Obtener el precio correspondiente
+            self.total_gastado += precio_producto * cantidad
+        else:
+            print(f"\nEl producto {producto} no está disponible en el inventario.")
+
+    def mostrar_compras(self):
+        print(f"\nCompras de {self.nombre}:")
+        for producto, cantidad in self.productos_comprados.items():
+            if producto in inventario:
+                index_producto = productos.index(producto)
+                precio_producto = precios[index_producto]
+                print(f"{producto}: {cantidad} unidades a {precio_producto} cada una.")
+        print(f"Total gastado: {self.total_gastado}")
+
+# Función principal del programa
+def gestionar_tienda():
+    while True:
+        print("\n--- Bienvenido a NandoGameWorld! ---")
+        print("\n--- Menú de Opciones ---")
+        print("1. Mostrar inventario")
+        print("2. Agregar producto al inventario")
+        print("3. Vender producto")
+        print("4. Registrar cliente y sus compras")
+        print("5. Salir")
+
+        opcion = input("\nElige una opción: ")
+
+        if opcion == "1":
+            mostrar_inventario()
+        elif opcion == "2":
+            nombre = input("Nombre del producto: ")
+            cantidad = solicitar_entero("Cantidad: ")
+            precio = solicitar_entero("Precio: ")  
+            agregar_producto(nombre, cantidad, precio)
+        elif opcion == "3":
+            nombre = input("Nombre del producto: ")
+            cantidad = solicitar_entero("Cantidad: ")
+            vender_producto(nombre, cantidad)
+        elif opcion == "4":
+            nombre_cliente = input("Nombre del cliente: ")
+            cliente = Cliente(nombre_cliente)
+            while True:
+                producto = input("Producto comprado (o escribe 'salir' para terminar): ")
+                if producto.lower() == "salir":
+                    break
+                cantidad = solicitar_entero(f"Cantidad de {producto}: ")
+                cliente.agregar_compra(producto, cantidad)
+                vender_producto(producto, cantidad)
+                cliente.mostrar_compras()
+        elif opcion == "5":
+            print("\nGracias por usar el sistema. ¡Hasta luego!")
+            break
+        else:
+            print("\nOpción no válida. Inténtalo de nuevo.")
+
+# Ejecutar el programa
+gestionar_tienda()
